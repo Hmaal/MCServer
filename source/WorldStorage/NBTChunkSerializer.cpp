@@ -5,6 +5,10 @@
 #include "Globals.h"
 #include "NBTChunkSerializer.h"
 #include "../BlockID.h"
+#include "../ItemGrid.h"
+#include "../StringCompression.h"
+#include "FastNBT.h"
+
 #include "../BlockEntities/ChestEntity.h"
 #include "../BlockEntities/DispenserEntity.h"
 #include "../BlockEntities/DropperEntity.h"
@@ -13,16 +17,26 @@
 #include "../BlockEntities/JukeboxEntity.h"
 #include "../BlockEntities/NoteEntity.h"
 #include "../BlockEntities/SignEntity.h"
-#include "../ItemGrid.h"
-#include "../StringCompression.h"
+
 #include "../Entities/Entity.h"
-#include "FastNBT.h"
 #include "../Entities/FallingBlock.h"
 #include "../Entities/Boat.h"
 #include "../Entities/Minecart.h"
-#include "../Mobs/Monster.h"
 #include "../Entities/Pickup.h"
 #include "../Entities/ProjectileEntity.h"
+
+#include "../Mobs/Monster.h"
+#include "../Mobs/Bat.h"
+#include "../Mobs/Creeper.h"
+#include "../Mobs/Enderman.h"
+#include "../Mobs/Horse.h"
+#include "../Mobs/Magmacube.h"
+#include "../Mobs/Sheep.h"
+#include "../Mobs/Slime.h"
+#include "../Mobs/Skeleton.h"
+#include "../Mobs/Villager.h"
+#include "../Mobs/Wolf.h"
+#include "../Mobs/Zombie.h"
 
 
 
@@ -322,7 +336,116 @@ void cNBTChunkSerializer::AddMinecartEntity(cMinecart * a_Minecart)
 
 void cNBTChunkSerializer::AddMonsterEntity(cMonster * a_Monster)
 {
-	// TODO
+	const char * EntityClass = NULL;
+	switch (a_Monster->GetMobType())
+	{
+		case cMonster::mtBat:           EntityClass = "Bat";            break;
+		case cMonster::mtBlaze:         EntityClass = "Blaze";          break;
+		case cMonster::mtCaveSpider:    EntityClass = "CaveSpider";     break;
+		case cMonster::mtChicken:       EntityClass = "Chicken";        break;
+		case cMonster::mtCow:           EntityClass = "Cow";            break;
+		case cMonster::mtCreeper:       EntityClass = "Creeper";        break;
+		case cMonster::mtEnderDragon:   EntityClass = "EnderDragon";    break;
+		case cMonster::mtEnderman:      EntityClass = "Enderman";       break;
+		case cMonster::mtGhast:         EntityClass = "Ghast";          break;
+		case cMonster::mtGiant:         EntityClass = "Giant";          break;
+		case cMonster::mtHorse:         EntityClass = "Horse";          break;
+		case cMonster::mtIronGolem:     EntityClass = "VillagerGolem";  break;
+		case cMonster::mtMagmaCube:     EntityClass = "LavaSlime";      break;
+		case cMonster::mtMooshroom:     EntityClass = "MushroomCow";    break;
+		case cMonster::mtOcelot:        EntityClass = "Ozelot";         break;
+		case cMonster::mtPig:           EntityClass = "Pig";            break;
+		case cMonster::mtSheep:         EntityClass = "Sheep";          break;
+		case cMonster::mtSilverfish:    EntityClass = "Silverfish";     break;
+		case cMonster::mtSkeleton:      EntityClass = "Skeleton";       break;
+		case cMonster::mtSlime:         EntityClass = "Slime";          break;
+		case cMonster::mtSnowGolem:     EntityClass = "SnowMan";        break;
+		case cMonster::mtSpider:        EntityClass = "Spider";         break;
+		case cMonster::mtSquid:         EntityClass = "Squid";          break;
+		case cMonster::mtVillager:      EntityClass = "Villager";       break;
+		case cMonster::mtWitch:         EntityClass = "Witch";          break;
+		case cMonster::mtWither:        EntityClass = "Wither";         break;
+		case cMonster::mtWolf:          EntityClass = "Wolf";           break;
+		case cMonster::mtZombie:        EntityClass = "Zombie";         break;
+		case cMonster::mtZombiePigman:  EntityClass = "PigZombie";      break;
+		default:
+		{
+			ASSERT(!"Unhandled monster type");
+			return;
+		}
+	}  // switch (payload)
+
+	m_Writer.BeginCompound("");
+		AddBasicEntity(a_Monster, EntityClass);
+		switch (a_Monster->GetMobType())
+		{
+			case cMonster::mtBat:
+			{
+				m_Writer.AddByte("BatFlags", ((const cBat &)a_Monster).IsHanging());
+				break;
+			}
+			case cMonster::mtCreeper:
+			{
+				m_Writer.AddByte("powered", ((const cCreeper &)a_Monster).IsCharged());
+				m_Writer.AddByte("ignited", ((const cCreeper &)a_Monster).IsBlowing());
+				break;
+			}
+			case cMonster::mtEnderman:
+			{
+				m_Writer.AddShort("carried", (Int16)((const cEnderman &)a_Monster).GetCarriedBlock());
+				m_Writer.AddShort("carriedData", (Int16)((const cEnderman &)a_Monster).GetCarriedMeta());
+				break;
+			}
+			case cMonster::mtHorse:
+			{
+				m_Writer.AddByte("ChestedHorse", ((const cHorse &)a_Monster).IsChested());
+				m_Writer.AddByte("EatingHaystack", ((const cHorse &)a_Monster).IsEating());
+				m_Writer.AddByte("Tame", ((const cHorse &)a_Monster).IsTame());
+				m_Writer.AddInt("Type", ((const cHorse &)a_Monster).GetHorseType());
+				m_Writer.AddInt("Color", ((const cHorse &)a_Monster).GetHorseColor());
+				m_Writer.AddInt("Style", ((const cHorse &)a_Monster).GetHorseStyle());
+				m_Writer.AddInt("ArmorType", ((const cHorse &)a_Monster).GetHorseArmour());
+				m_Writer.AddByte("Saddle", ((const cHorse &)a_Monster).IsSaddled());
+				break;
+			}
+			case cMonster::mtMagmaCube:
+			{
+				m_Writer.AddByte("Size", ((const cMagmaCube &)a_Monster).GetSize());
+				break;
+			}
+			case cMonster::mtSheep:
+			{
+				m_Writer.AddByte("Sheared", ((const cSheep &)a_Monster).IsSheared());
+				m_Writer.AddByte("Color", ((const cSheep &)a_Monster).GetFurColor());
+				break;
+			}
+			case cMonster::mtSlime:
+			{
+				m_Writer.AddInt("Size", ((const cSlime &)a_Monster).GetSize());
+			}
+			case cMonster::mtSkeleton:
+			{
+				m_Writer.AddByte("SkeletonType", (((const cSkeleton &)a_Monster).IsWither() ? 1 : 0));
+			}
+			case cMonster::mtVillager:
+			{
+				m_Writer.AddInt("Profession", ((const cVillager &)a_Monster).GetVilType());
+				break;
+			}
+			case cMonster::mtWolf:
+			{
+				m_Writer.AddInt("Profession", ((const cVillager &)a_Monster).GetVilType());
+				break;
+			}
+			case cMonster::mtZombie:
+			{
+				m_Writer.AddByte("IsVillager", (((const cZombie &)a_Monster).IsVillagerZombie() ? 1 : 0));
+				m_Writer.AddByte("IsBaby", (((const cZombie &)a_Monster).IsBaby() ? 1 : 0));
+				m_Writer.AddByte("IsConverting", (((const cZombie &)a_Monster).IsConverting() ? 1 : 0));
+				break;
+			}
+		}
+	m_Writer.EndCompound();
 }
 
 
