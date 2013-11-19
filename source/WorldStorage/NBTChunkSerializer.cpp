@@ -381,67 +381,69 @@ void cNBTChunkSerializer::AddMonsterEntity(cMonster * a_Monster)
 		{
 			case cMonster::mtBat:
 			{
-				m_Writer.AddByte("BatFlags", ((const cBat &)a_Monster).IsHanging());
+				m_Writer.AddByte("BatFlags", ((const cBat *)a_Monster)->IsHanging());
 				break;
 			}
 			case cMonster::mtCreeper:
 			{
-				m_Writer.AddByte("powered", ((const cCreeper &)a_Monster).IsCharged());
-				m_Writer.AddByte("ignited", ((const cCreeper &)a_Monster).IsBlowing());
+				m_Writer.AddByte("powered", ((const cCreeper *)a_Monster)->IsCharged());
+				m_Writer.AddByte("ignited", ((const cCreeper *)a_Monster)->IsBlowing());
 				break;
 			}
 			case cMonster::mtEnderman:
 			{
-				m_Writer.AddShort("carried", (Int16)((const cEnderman &)a_Monster).GetCarriedBlock());
-				m_Writer.AddShort("carriedData", (Int16)((const cEnderman &)a_Monster).GetCarriedMeta());
+				m_Writer.AddShort("carried",     (Int16)((const cEnderman *)a_Monster)->GetCarriedBlock());
+				m_Writer.AddShort("carriedData", (Int16)((const cEnderman *)a_Monster)->GetCarriedMeta());
 				break;
 			}
 			case cMonster::mtHorse:
 			{
-				m_Writer.AddByte("ChestedHorse", ((const cHorse &)a_Monster).IsChested());
-				m_Writer.AddByte("EatingHaystack", ((const cHorse &)a_Monster).IsEating());
-				m_Writer.AddByte("Tame", ((const cHorse &)a_Monster).IsTame());
-				m_Writer.AddInt("Type", ((const cHorse &)a_Monster).GetHorseType());
-				m_Writer.AddInt("Color", ((const cHorse &)a_Monster).GetHorseColor());
-				m_Writer.AddInt("Style", ((const cHorse &)a_Monster).GetHorseStyle());
-				m_Writer.AddInt("ArmorType", ((const cHorse &)a_Monster).GetHorseArmour());
-				m_Writer.AddByte("Saddle", ((const cHorse &)a_Monster).IsSaddled());
+				const cHorse & Horse = *((const cHorse *)a_Monster);
+				m_Writer.AddByte("ChestedHorse",   Horse.IsChested());
+				m_Writer.AddByte("EatingHaystack", Horse.IsEating());
+				m_Writer.AddByte("Tame",           Horse.IsTame());
+				m_Writer.AddInt ("Type",           Horse.GetHorseType());
+				m_Writer.AddInt ("Color",          Horse.GetHorseColor());
+				m_Writer.AddInt ("Style",          Horse.GetHorseStyle());
+				m_Writer.AddInt ("ArmorType",      Horse.GetHorseArmour());
+				m_Writer.AddByte("Saddle",         Horse.IsSaddled());
 				break;
 			}
 			case cMonster::mtMagmaCube:
 			{
-				m_Writer.AddByte("Size", ((const cMagmaCube &)a_Monster).GetSize());
+				m_Writer.AddByte("Size", ((const cMagmaCube *)a_Monster)->GetSize());
 				break;
 			}
 			case cMonster::mtSheep:
 			{
-				m_Writer.AddByte("Sheared", ((const cSheep &)a_Monster).IsSheared());
-				m_Writer.AddByte("Color", ((const cSheep &)a_Monster).GetFurColor());
+				m_Writer.AddByte("Sheared", ((const cSheep *)a_Monster)->IsSheared());
+				m_Writer.AddByte("Color",   ((const cSheep *)a_Monster)->GetFurColor());
 				break;
 			}
 			case cMonster::mtSlime:
 			{
-				m_Writer.AddInt("Size", ((const cSlime &)a_Monster).GetSize());
+				m_Writer.AddInt("Size", ((const cSlime *)a_Monster)->GetSize());
 			}
 			case cMonster::mtSkeleton:
 			{
-				m_Writer.AddByte("SkeletonType", (((const cSkeleton &)a_Monster).IsWither() ? 1 : 0));
+				m_Writer.AddByte("SkeletonType", (((const cSkeleton *)a_Monster)->IsWither() ? 1 : 0));
 			}
 			case cMonster::mtVillager:
 			{
-				m_Writer.AddInt("Profession", ((const cVillager &)a_Monster).GetVilType());
+				m_Writer.AddInt("Profession", ((const cVillager *)a_Monster)->GetVilType());
 				break;
 			}
 			case cMonster::mtWolf:
 			{
-				m_Writer.AddInt("Profession", ((const cVillager &)a_Monster).GetVilType());
+				// TODO:
+				// _X: CopyPasta error: m_Writer.AddInt("Profession", ((const cVillager *)a_Monster)->GetVilType());
 				break;
 			}
 			case cMonster::mtZombie:
 			{
-				m_Writer.AddByte("IsVillager", (((const cZombie &)a_Monster).IsVillagerZombie() ? 1 : 0));
-				m_Writer.AddByte("IsBaby", (((const cZombie &)a_Monster).IsBaby() ? 1 : 0));
-				m_Writer.AddByte("IsConverting", (((const cZombie &)a_Monster).IsConverting() ? 1 : 0));
+				m_Writer.AddByte("IsVillager",   (((const cZombie *)a_Monster)->IsVillagerZombie() ? 1 : 0));
+				m_Writer.AddByte("IsBaby",       (((const cZombie *)a_Monster)->IsBaby() ? 1 : 0));
+				m_Writer.AddByte("IsConverting", (((const cZombie *)a_Monster)->IsConverting() ? 1 : 0));
 				break;
 			}
 		}
